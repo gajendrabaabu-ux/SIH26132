@@ -1,12 +1,11 @@
-// Placeholder — build out in Phase 6 alongside FarmerDashboard.
-// Will list open lots matching this buyer's quality/quantity preferences
-// and let them submit an offer (calls a POST /api/offers endpoint,
-// which is the same object the farmer's ranked list already reads from).
+import { useLanguage } from '../context/LanguageContext.jsx';
+
 export default function BuyerDashboard() {
+  const { t } = useLanguage();
   return (
     <div>
-      <h1>Buyer Dashboard</h1>
-      <p>Coming in Phase 6 — browse open lots, submit offers.</p>
+      <h1 className="text-2xl font-semibold mb-4">{t('buyer_dashboard_title')}</h1>
+      <p>{t('buyer_dashboard_placeholder')}</p>
     </div>
   );
 }

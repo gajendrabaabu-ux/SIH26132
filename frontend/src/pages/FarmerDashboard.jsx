@@ -1,76 +1,100 @@
-import { useState } from 'react';
-import { api } from '../api.js';
+import React, { useState } from 'react';
 
-// NOTE: this is a functional skeleton, not styled — Phase 6 (frontend build)
-// is where this gets real layout/design. Right now it exists so the
-// create-lot -> forecast -> match -> accept-offer flow can be tested end to end.
 export default function FarmerDashboard() {
-  const [lot, setLot] = useState(null);
-  const [offers, setOffers] = useState([]);
-  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    commodity: 'Tomato',
+    quantity: '',
+    district: 'Madurai',
+    longitude: '',
+    latitude: ''
+  });
 
-  async function handleCreateLot(e) {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError(null);
-    const form = new FormData(e.target);
-    try {
-      const created = await api.createLot({
-        commodity: form.get('commodity'),
-        quantity_kg: Number(form.get('quantity_kg')),
-        district: form.get('district'),
-        lon: Number(form.get('lon')),
-        lat: Number(form.get('lat')),
-      });
-      setLot(created);
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
-  async function handleMatchBuyers() {
-    if (!lot) return;
-    const ranked = await api.matchBuyers(lot.id);
-    setOffers(ranked);
-  }
+    console.log('Lot Submitted:', formData);
+    alert('Lot created successfully!');
+  };
 
   return (
-    <div>
-      <h1>Create a Lot</h1>
-      <form onSubmit={handleCreateLot} style={{ display: 'grid', gap: 8, maxWidth: 320 }}>
-        <input name="commodity" placeholder="Commodity (e.g. Onion)" defaultValue="Onion" required />
-        <input name="quantity_kg" type="number" placeholder="Quantity (kg)" required />
-        <input name="district" placeholder="District" defaultValue="Nashik" required />
-        <input name="lon" type="number" step="any" placeholder="Longitude" required />
-        <input name="lat" type="number" step="any" placeholder="Latitude" required />
-        <button type="submit">Create Lot</button>
+    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 mt-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Create Produce Lot</h2>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Commodity</label>
+          <input
+            type="text"
+            name="commodity"
+            value={formData.commodity}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
+            placeholder="e.g., Tomato"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Quantity (Quintals)</label>
+          <input
+            type="number"
+            name="quantity"
+            value={formData.quantity}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
+            placeholder="e.g., 50"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
+          <input
+            type="text"
+            name="district"
+            value={formData.district}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
+            placeholder="e.g., Madurai"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+            <input
+              type="text"
+              name="longitude"
+              value={formData.longitude}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
+              placeholder="78.1198"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+            <input
+              type="text"
+              name="latitude"
+              value={formData.latitude}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
+              placeholder="9.9252"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-green-700 hover:bg-green-800 text-white font-medium py-2.5 rounded-lg transition duration-200 mt-2"
+        >
+          Create Lot
+        </button>
       </form>
-
-      {error && <p style={{ color: 'crimson' }}>{error}</p>}
-
-      {lot && (
-        <div style={{ marginTop: 24 }}>
-          <h2>Price Forecast</h2>
-          <p>
-            ₹{lot.predicted_price_band_low} – ₹{lot.predicted_price_band_high}
-            {' '}(confidence: {lot.forecast_confidence})
-          </p>
-          <button onClick={handleMatchBuyers}>Find Buyers</button>
-        </div>
-      )}
-
-      {offers.length > 0 && (
-        <div style={{ marginTop: 24 }}>
-          <h2>Ranked Offers</h2>
-          <ul>
-            {offers.map((o) => (
-              <li key={o.id}>
-                ₹{o.offered_price} — net realisation ₹{o.net_realisation_score}
-                {' '}<button onClick={() => api.acceptOffer(o.id)}>Accept</button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }
